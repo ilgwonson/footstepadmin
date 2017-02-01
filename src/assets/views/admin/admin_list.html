@@ -1,0 +1,132 @@
+<!-- Page Header -->
+<div class="content bg-gray-lighter">
+    <div class="row items-push">
+        <div class="col-sm-7">
+            <h1 class="page-heading">
+                관리자 리스트
+            </h1>
+        </div>
+        <div class="col-sm-5 text-right hidden-xs">
+            <ol class="breadcrumb push-10-t">
+                <li>관리자</li>
+                <li><a class="link-effect" href="">리스트</a></li>
+            </ol>
+        </div>
+    </div>
+</div>
+<!-- END Page Header -->
+
+<!-- Page Content -->
+<div class="content content-narrow">
+    <div class="block">
+        <div class="block-header">
+            <button class="btn btn-sm btn-success" ng-click="open_modal(1)" type="button"><i class="fa fa-plus" aria-hidden="true"></i> 관리자 추가</button>
+        </div>
+        <div class="block-content">
+            <!-- DataTables init on table by adding .js-dataTable-full class, functionality initialized in js/controllers.js -> TablesDatatablesCtrl Controller-->
+            <table id="admin_user_table" class="table table-bordered table-striped js-dataTable-full">
+                <thead>
+                <tr>
+                    <th class="text-center"></th>
+                    <th class="text-center">아이디</th>
+                    <th class="hidden-xs">이메일</th>
+                    <th class="hidden-xs" style="width: 15%;">이름</th>
+                    <th class="text-center" style="width: 10%;">권한</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in adminUser_list">
+                        <td class="text-center">
+                            {{$index}}
+                        </td>
+                        <td class="text-center">
+                            {{item.id}}
+                        </td>
+                        <td class="text-center">
+                            {{item.email}}
+                        </td>
+                        <td class="text-center">
+                            {{item.name}}
+                        </td>
+                        <td class="text-center">
+                            {{item.grade}}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-xs btn-default" type="button" ng-click="open_edit_modal(item.id)"><i class="fa fa-pencil"></i></button>
+                                <button class="btn btn-xs btn-default" type="button" ng-click="del_adminUser(item.id)"><i class="fa fa-times"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- END Page Content -->
+
+<div class="modal fade" id="modal-add_admin" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-fromleft">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent remove-margin-b">
+                <div class="block-header bg-primary-dark">
+                    <ul class="block-options">
+                        <li>
+                            <button data-dismiss="modal" type="button"><i class="si si-close"></i></button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">관리자 {{modalTitle}}</h3>
+                </div>
+                <div class="block-content">
+                    <form id="modal_admin_form" class="form-horizontal" method="post">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_id">ID</label>
+                            <div class="col-md-6">
+                                <input data-js-maxlength="{alwaysShow: true}" maxlength="10"  class="form-control" type="text" id="add_admin_id" name="add_admin_id" ng-model="add_admin_data.id">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_email">이메일</label>
+                            <div class="col-md-6">
+                                <input class="form-control" type="email" id="add_admin_email" name="add_admin_email" ng-model="add_admin_data.email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_name">이름</label>
+                            <div class="col-md-6">
+                                <input class="form-control" type="text" id="add_admin_name" name="add_admin_name" ng-model="add_admin_data.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_grade">권한</label>
+                            <div class="col-md-6">
+                                <select class="form-control" id="add_admin_grade" name="add_admin_grade" ng-model="add_admin_data.grade">
+                                    <option>선택하세요</option>
+                                    <option value="AA">관리자</option>
+                                    <option value="SA">슈퍼관리자</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_password">비밀번호</label>
+                            <div class="col-md-6">
+                                <input class="form-control" type="password" id="add_admin_password" name="add_admin_password" ng-model="add_admin_data.password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="add_admin_repassword">비밀번호 확인</label>
+                            <div class="col-md-6">
+                                <input class="form-control" type="password" id="add_admin_repassword" name="add_admin_repassword" ng-model="add_admin_data.repassword">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-default" type="button" data-dismiss="modal" ng-click="form_adminUser_reset()">취소</button>
+                <button class="btn btn-sm btn-primary" type="button" data-ng-click="confrim_adminUser_form()"><i class="fa fa-check"></i> 확인</button>
+            </div>
+        </div>
+    </div>
+</div>

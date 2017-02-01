@@ -16,11 +16,26 @@ var App = angular.module('app', [
 // Router configuration
 App.config(['$stateProvider', '$urlRouterProvider',
     function ($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.otherwise('/angularjs');
+        $urlRouterProvider.otherwise('/admin/admin_list');
         $stateProvider
-            .state('angularjs', {
-                url: '/angularjs',
-                templateUrl: 'assets/views/ready_angularjs.html'
+            .state('admin_list', {
+                url: '/admin/admin_list',
+                templateUrl: 'assets/views/admin/admin_list.html',
+                controller: 'AdminCtrl',
+                resolve: {
+                    deps: ['$ocLazyLoad', function($ocLazyLoad) {
+                        return $ocLazyLoad.load({
+                            insertBefore: '#css-bootstrap',
+                            serie: true,
+                            files: [
+                                'assets/js/plugins/datatables/jquery.dataTables.min.css',
+                                'assets/js/plugins/datatables/jquery.dataTables.min.js',
+                                'assets/js/plugins/datatables/jquery.dataTables.custom.js',
+                                'assets/js/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js'
+                            ]
+                        });
+                    }]
+                }
             })
             .state('dashboard', {
                 url: '/dashboard',
@@ -882,3 +897,33 @@ App.controller('HeaderCtrl', ['$scope', '$localStorage', '$window',
         });
     }
 ]);
+
+
+(function (App) {
+    App
+        .module('meanApp')
+        .service('authentication', authentication);
+
+    authentication.$inject = ['$http', '$window'];
+    function authentication ($http, $window) {
+
+        var saveToken = function (token) {
+            $window.localStorage['mean-token'] = token;
+        };
+
+        var getToken = function () {
+            return $window.localStorage['mean-token'];
+        };
+
+        logout = function() {
+            $window.localStorage.removeItem('mean-token');
+        };
+
+        return {
+            saveToken : saveToken,
+            getToken : getToken,
+            logout : logout
+        };
+    }
+
+})(App);
