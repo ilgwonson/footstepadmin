@@ -5,11 +5,6 @@ function validation_add_admin(data){
 
     var res = [];
 
-    if(!data.id){
-        res.push({target : "admin_id" , text : "아이디를 입력해주세요."})
-    }else if(data.id.length > 10){
-        res.push({target : "admin_id" , text : "아이디는 최대 10자 까지만 가능합니다."});
-    }
     if(!data.email){
         res.push({target : "admin_email" , text : "이메일을 입력해주세요."})
     }
@@ -27,7 +22,7 @@ function validation_add_admin(data){
     }else if(data.password != data.repassword){
         res.push({target : "admin_repassword" , text : "입력하신 비밀번호가 다릅니다."})
     }
-    
+    console.log(res);
     return res;
 }
 var module;

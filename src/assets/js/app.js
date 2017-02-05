@@ -37,6 +37,11 @@ App.config(['$stateProvider', '$urlRouterProvider',
                     }]
                 }
             })
+            .state('login', {
+                url: '/login',
+                templateUrl: 'login.html',
+                controller: 'LoginCtrl'
+            })
             .state('dashboard', {
                 url: '/dashboard',
                 templateUrl: 'assets/views/ready_dashboard.html',
@@ -775,23 +780,7 @@ App.factory('uiHelpers', function () {
     };
 });
 
-// Run our App
-App.run(function($rootScope, uiHelpers) {
-    // Access uiHelpers easily from all controllers
-    $rootScope.helpers = uiHelpers;
 
-    // On window resize or orientation change resize #main-container & Handle scrolling
-    var resizeTimeout;
-
-    jQuery(window).on('resize orientationchange', function () {
-        clearTimeout(resizeTimeout);
-
-        resizeTimeout = setTimeout(function(){
-            $rootScope.helpers.uiHandleScroll();
-            $rootScope.helpers.uiHandleMain();
-        }, 150);
-    });
-});
 
 // Application Main Controller
 App.controller('AppCtrl', ['$scope', '$localStorage', '$window',
@@ -888,24 +877,29 @@ App.controller('SidebarCtrl', ['$scope', '$localStorage', '$window', '$location'
 ]);
 
 // Header Controller
-App.controller('HeaderCtrl', ['$scope', '$localStorage', '$window',
-    function ($scope, $localStorage, $window) {
+App.controller('HeaderCtrl', ['$scope', '$localStorage', '$window', 'authentication',
+    function ($scope, $localStorage, $window,authentication) {
         // When view content is loaded
         $scope.$on('$includeContentLoaded', function () {
             // Transparent header functionality
             $scope.helpers.uiHandleHeader();
         });
+        $scope.logout = function(){
+            authentication.logout();
+        }
+        if(authentication.isLoggedIn()){
+            $scope.email = authentication.currentUser().email;
+        }
     }
 ]);
 
 
 (function (App) {
     App
-        .module('meanApp')
         .service('authentication', authentication);
 
-    authentication.$inject = ['$http', '$window'];
-    function authentication ($http, $window) {
+    authentication.$inject = ['$http', '$window','$location'];
+    function authentication ($http, $window,$location) {
 
         var saveToken = function (token) {
             $window.localStorage['mean-token'] = token;
@@ -915,15 +909,102 @@ App.controller('HeaderCtrl', ['$scope', '$localStorage', '$window',
             return $window.localStorage['mean-token'];
         };
 
-        logout = function() {
+        var logout = function() {
             $window.localStorage.removeItem('mean-token');
+            $location.path('/login');
+        };
+
+        var isLoggedIn = function() {
+            var token = getToken();
+            var payload;
+
+            if(token){
+                payload = token.split('.')[1];
+                payload = $window.atob(payload);
+                payload = JSON.parse(payload);
+
+                return payload.exp > Date.now() / 1000;
+            } else {
+                return false;
+            }
+        };
+        var currentUser = function() {
+            if(isLoggedIn()){
+                var token = getToken();
+                var payload = token.split('.')[1];
+                payload = $window.atob(payload);
+                payload = JSON.parse(payload);
+                return {
+                    email : payload.email,
+                    name : payload.name
+                };
+            }
+        };
+
+        var register = function(user) {
+            return $http.post('/api/register', user).then(function(data){
+                saveToken(data.token);
+            });
+        };
+
+        var login = function(user) {
+            return $http.post('/api/login', user).then(function(data) {
+                saveToken(data.data.token);
+                // if($("#login-remember-me").prop("checked")){
+                //     var expiry = new Date();
+                //     expiry.setDate(expiry.getDate() + 7);
+                //     $cookies.put('remember_id', $("#admin_id").val() ,{
+                //         expires : parseInt(expiry.getTime() / 1000)
+                //     });
+                // }
+                $location.path('/');
+            },function(err){
+                console.log(err);
+                alert(err.data.message)
+            });
         };
 
         return {
             saveToken : saveToken,
             getToken : getToken,
-            logout : logout
+            logout : logout,
+            isLoggedIn : isLoggedIn,
+            currentUser : currentUser,
+            register : register,
+            login : login
+
         };
     }
-
 })(App);
+
+
+
+// Run our App
+App.run(function($rootScope, uiHelpers) {
+    // Access uiHelpers easily from all controllers
+    $rootScope.helpers = uiHelpers;
+
+    // On window resize or orientation change resize #main-container & Handle scrolling
+    var resizeTimeout;
+
+    jQuery(window).on('resize orientationchange', function () {
+        clearTimeout(resizeTimeout);
+
+        resizeTimeout = setTimeout(function(){
+            $rootScope.helpers.uiHandleScroll();
+            $rootScope.helpers.uiHandleMain();
+        }, 150);
+    });
+});
+
+
+App.run(['$rootScope', '$location','$state','authentication', run]);
+
+function run($rootScope, $location,$state, authentication) {
+    $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
+        if (toState.name != "login" && !authentication.isLoggedIn()) {
+            event.preventDefault();
+            $state.go('login')
+        }
+    });
+}

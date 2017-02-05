@@ -6,15 +6,18 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 
+require('./models/db');
+require('./config/passport');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 var admin = require('./routes/admin');
+var login = require('./routes/login');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'src'));
+app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
@@ -27,8 +30,8 @@ app.use(express.static(path.join(__dirname, 'src')));
 
 app.use(passport.initialize());
 app.use('/', index);
-app.use('/users', users);
 app.use('/admin', admin);
+app.use('/api', login);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -28,10 +28,9 @@
                 <thead>
                 <tr>
                     <th class="text-center"></th>
-                    <th class="text-center">아이디</th>
-                    <th class="hidden-xs">이메일</th>
-                    <th class="hidden-xs" style="width: 15%;">이름</th>
-                    <th class="text-center" style="width: 10%;">권한</th>
+                    <th class="text-center hidden-xs">이메일</th>
+                    <th class="text-center hidden-xs">이름</th>
+                    <th class="text-center">권한</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -39,9 +38,6 @@
                     <tr ng-repeat="item in adminUser_list">
                         <td class="text-center">
                             {{$index}}
-                        </td>
-                        <td class="text-center">
-                            {{item.id}}
                         </td>
                         <td class="text-center">
                             {{item.email}}
@@ -54,8 +50,8 @@
                         </td>
                         <td class="text-center">
                             <div class="btn-group">
-                                <button class="btn btn-xs btn-default" type="button" ng-click="open_edit_modal(item.id)"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-xs btn-default" type="button" ng-click="del_adminUser(item.id)"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-xs btn-default" type="button" ng-click="open_edit_modal(item._id)"><i class="fa fa-pencil"></i></button>
+                                <button class="btn btn-xs btn-default" type="button" ng-click="del_adminUser(item._id)"><i class="fa fa-times"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -80,12 +76,6 @@
                 </div>
                 <div class="block-content">
                     <form id="modal_admin_form" class="form-horizontal" method="post">
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="add_admin_id">ID</label>
-                            <div class="col-md-6">
-                                <input data-js-maxlength="{alwaysShow: true}" maxlength="10"  class="form-control" type="text" id="add_admin_id" name="add_admin_id" ng-model="add_admin_data.id">
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="add_admin_email">이메일</label>
                             <div class="col-md-6">

@@ -2,7 +2,6 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
     function ($scope, $localStorage, $window, $http) {
 
         $scope.add_admin_data = {
-            id : "",
             email : "",
             name :"",
             grade : "",
@@ -44,9 +43,8 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
                 method: 'POST',
                 url: "/admin/get_adminUser",
                 headers: {'Content-Type': 'application/json; charset=utf-8'},
-                data: JSON.stringify({id:id})
+                data: JSON.stringify({_id:id})
             }).then(function(res){
-                console.log(res)
                 $scope.add_admin_data = $.extend($scope.add_admin_data,res.data.data[0]);
                 $scope.add_admin_data.repassword = $scope.add_admin_data.password;
                 close_loadingAjax();
@@ -64,10 +62,10 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
             if(modalState == "add"){
                 $http({
                     method: 'POST',
-                    url: "/admin/add_adminUser",
+                    url: "/api/register",
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
                     data: JSON.stringify($scope.add_admin_data)
-                }).then(function(){
+                }).then(function(res){
                     $modal_adminUser.modal("hide");
                     _form_adminUser_reset();
                     get_admin_list();
@@ -77,7 +75,7 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
                     method: 'PUT',
                     url: "/admin/update_adminUser",
                     headers: {'Content-Type': 'application/json; charset=utf-8'},
-                    data: JSON.stringify({uid : modalTargetId , data : $scope.add_admin_data})
+                    data: JSON.stringify({_id : modalTargetId , data : $scope.add_admin_data})
                 }).then(function(){
                     $modal_adminUser.modal("hide");
                     _form_adminUser_reset();
@@ -92,7 +90,7 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
                 method: 'DELETE',
                 url: "/admin/delete_adminUser",
                 headers: {'Content-Type': 'application/json; charset=utf-8'},
-                data: JSON.stringify({id:id})
+                data: JSON.stringify({_id:id})
             }).then(function(){
                 $modal_adminUser.modal("hide");
                 _form_adminUser_reset();
@@ -125,6 +123,31 @@ App.controller('AdminCtrl', ['$scope', '$localStorage', '$window', '$http',
             })
         }
 
+    }
+]);
+
+App.controller('LoginCtrl', ['$scope', '$localStorage', '$window', '$http','$state','authentication', '$location',
+    function ($scope, $localStorage, $window, $http,$state,authentication,$location) {
+
+        $scope.credentials = {
+            email : "",
+            password : ""
+        };
+        if(authentication.isLoggedIn($scope.credentials)){
+            $location.path("/");
+        }
+
+        $scope.onLoginSubmit = function () {
+            authentication
+                .login($scope.credentials)
+        };
+
+        $scope.onKeyDownSubmit = function(e){
+            if(e.keyCode == 13){
+                authentication
+                    .login($scope.credentials)
+            }
+        }
     }
 ]);
 
